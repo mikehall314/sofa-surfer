@@ -9,12 +9,14 @@ import type {
 import { CouchDBDocumentUpdateConflict, CouchDBNotFoundError } from './errors';
 
 export class SofaSurfer {
-	private readonly authorization: string;
+	private readonly authorization?: string = undefined;
 
 	constructor(private readonly baseUrl: URL) {
-		this.authorization = Buffer.from(
-			`${baseUrl.username}:${baseUrl.password}`,
-		).toString('base64');
+		if (baseUrl.username) {
+			this.authorization = Buffer.from(
+				`${baseUrl.username}:${baseUrl.password}`,
+			).toString('base64');
+		}
 
 		baseUrl.username = '';
 		baseUrl.password = '';
@@ -25,9 +27,17 @@ export class SofaSurfer {
 	}
 
 	private getCommonHeaders() {
-		return {
-			authorization: `Basic ${this.authorization}`,
+		const headers = {
 			'content-type': 'application/json',
+		};
+
+		if (!this.authorization) {
+			return headers;
+		}
+
+		return {
+			...headers,
+			authorization: `Basic ${this.authorization}`,
 		};
 	}
 
