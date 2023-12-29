@@ -1,6 +1,6 @@
 {
 	"name": "sofa-surfer",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "A little API for accessing CouchDB",
 	"author": "Mike Hall <mikehall314@gmail.com>",
 	"license": "MIT",
