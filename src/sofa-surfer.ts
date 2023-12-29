@@ -11,7 +11,10 @@ import { CouchDBDocumentUpdateConflict, CouchDBNotFoundError } from './errors';
 export class SofaSurfer {
 	private readonly authorization?: string = undefined;
 
-	constructor(private readonly baseUrl: URL) {
+	constructor(
+		private readonly baseUrl: URL,
+		readonly dbname: string,
+	) {
 		if (baseUrl.username) {
 			this.authorization = Buffer.from(
 				`${baseUrl.username}:${baseUrl.password}`,
@@ -20,6 +23,10 @@ export class SofaSurfer {
 
 		baseUrl.username = '';
 		baseUrl.password = '';
+
+		if (dbname) {
+			baseUrl.pathname = dbname;
+		}
 	}
 
 	use(db: string) {
