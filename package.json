@@ -39,7 +39,10 @@
 		"test": "jest",
 		"test:watch": "jest --watch"
 	},
-	"repository": "github:mikehall314/sofa-surfer",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/mikehall314/sofa-surfer.git"
+	},
 	"volta": {
 		"node": "18.19.0",
 		"npm": "10.2.5"
