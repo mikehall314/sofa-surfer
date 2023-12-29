@@ -18,14 +18,16 @@ const db = new SofaSurfer(process.env.COUCHDB_HOST);
 const doc = await db.get('my-couch-id');
 ```
 
+`sofa-surfer` requires Node 18.
+
 ### API
 
-`.get(id)` - Load a single CouchDB document
-`.insert(doc)` - Create a CouchDB document
-`.replace(id, rev, doc)` - Replace an old document with a new document
-`.remove(id, rev)` - Remove a document
-`.use(dbname)` - Change which database we are reading from
-`.query(viewQuery)` Perform a query with a `ViewQuery` object.
+- `.get(id)` - Load a single CouchDB document
+- `.insert(doc)` - Create a CouchDB document
+- `.replace(id, rev, doc)` - Replace an old document with a new document
+- `.remove(id, rev)` - Remove a document
+- `.use(dbname)` - Change which database we are reading from
+- `.query(viewQuery)` Perform a query with a `ViewQuery` object.
 
 ### The `ViewQuery` object
 
@@ -44,24 +46,24 @@ The `ViewQuery` object allows to query by key, keys, range, etc.
 
 ### `ViewQuery` API
 
-`.key(key)` - query a single key
-`.keys(array_of_keys)` - query several keys
-`.range(startkey, endkey)` - Query a range of keys.
-`.range(startkey, endkey, ViewQuery.INCLUDE_END)` - Query a range if keys, including the `endkey`
-`.idRange(startkey_docid, endkey_docid)` - subkeys for CouchDB pagination. Use in combination with `.range()`
-`.skip(n)` - skips `n` rows
-`.limit(n)` - return just `n` rows
-`.includeDocs()` - include the original document
-`.order(ViewQuery.DESCENDING)` - Sort the rows in descending order.
-`.order(ViewQuery.ASCENDING)` - Sort the rows in ascending order.
-`.reduce()` - run the reduce function
-`.reduce(false)` - don't run the reduce function
-`.group()` - group the results
-`.group(false)` - don't group the results
-`.group(1)` - set the `group_level` to `1`
-`.update(ViewQuery.UPDATE_BEFORE)` - Ensure the index is up to date before returning rows
-`.update(ViewQuery.UPDATE_AFTER)` - Return stale data this time, but update the index afterward.
-`.update(ViewQuery.UPDATE_NONE)` - Return stale data.
+- `.key(key)` - query a single key
+- `.keys(array_of_keys)` - query several keys
+- `.range(startkey, endkey)` - Query a range of keys.
+- `.range(startkey, endkey, ViewQuery.INCLUDE_END)` - Query a range if keys, including the `endkey`
+- `.idRange(startkey_docid, endkey_docid)` - subkeys for CouchDB pagination. Use in combination with `.range()`
+- `.skip(n)` - skips `n` rows
+- `.limit(n)` - return just `n` rows
+- `.includeDocs()` - include the original document
+- `.order(ViewQuery.DESCENDING)` - Sort the rows in descending order.
+- `.order(ViewQuery.ASCENDING)` - Sort the rows in ascending order.
+- `.reduce()` - run the reduce function
+- `.reduce(false)` - don't run the reduce function
+- `.group()` - group the results
+- `.group(false)` - don't group the results
+- `.group(n)` - set the `group_level` to `n`.
+- `.update(ViewQuery.UPDATE_BEFORE)` - Ensure the index is up to date before returning rows
+- `.update(ViewQuery.UPDATE_AFTER)` - Return stale data this time, but update the index afterward.
+- `.update(ViewQuery.UPDATE_NONE)` - Return stale data.
 
 The `ViewQuery` object returns itself, so calls can be chained:
 
