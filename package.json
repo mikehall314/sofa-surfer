@@ -28,6 +28,7 @@
 		"*.js": "eslint",
 		"*.ts": "eslint"
 	},
+	"main": "./dist/index.js",
 	"scripts": {
 		"build": "tsc",
 		"clean": "rimraf dist",
