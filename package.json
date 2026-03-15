@@ -44,7 +44,8 @@
 		"prepare": "husky",
 		"prettier": "prettier -l .",
 		"test": "vitest run",
-		"test:watch": "vitest"
+		"test:watch": "vitest",
+		"version": "jq --arg v \"$npm_package_version\" '.version = $v' jsr.json > jsr.json.tmp && mv jsr.json.tmp jsr.json && git add jsr.json"
 	},
 	"repository": {
 		"type": "git",
