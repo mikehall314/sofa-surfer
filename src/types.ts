@@ -6,14 +6,15 @@ export type SerializableValue =
 	| { [key: string]: SerializableValue }
 	| SerializableValue[];
 
-export type CouchDBDocument = SerializableValue & {
+export type CouchDBDocument = {
 	_id: string;
 	_rev: string;
+	[key: string]: SerializableValue;
 };
 
-export type MaybeCouchDBDocument = SerializableValue & {
+export type CreateDocumentIntent = {
 	_id?: string;
-	_rev?: string;
+	[key: string]: SerializableValue | undefined;
 };
 
 export type CouchDBDocumentCreated = {
