@@ -1,7 +1,8 @@
-import { ViewQuery } from './view-query';
+import { describe, it, expect } from 'vitest';
+import { ViewQuery } from './view-query.ts';
 
 describe('querying by key', () => {
-	test('views with no arguments', () => {
+	it('should produce correct URL with no arguments', () => {
 		expect.assertions(2);
 
 		const query = new ViewQuery('test-doc', 'test-view');
@@ -12,7 +13,7 @@ describe('querying by key', () => {
 		expect(query.hasPostData()).toBeFalsy();
 	});
 
-	test('loading a single key', () => {
+	it('should produce correct URL for a single key', () => {
 		expect.assertions(2);
 
 		const query = new ViewQuery('test-doc', 'test-view').key('fake-key');
@@ -23,7 +24,7 @@ describe('querying by key', () => {
 		expect(query.hasPostData()).toBeFalsy();
 	});
 
-	test('loading a compound key', () => {
+	it('should produce correct URL for a compound key', () => {
 		expect.assertions(2);
 
 		const query = new ViewQuery('test-doc', 'test-view').key(['my-key', {}]);
@@ -35,7 +36,7 @@ describe('querying by key', () => {
 		expect(query.hasPostData()).toBeFalsy();
 	});
 
-	test('requesting a boolean true key', () => {
+	it('should produce correct URL for a boolean true key', () => {
 		expect.assertions(2);
 
 		const query = new ViewQuery('test-doc', 'test-view').key(true);
@@ -46,7 +47,7 @@ describe('querying by key', () => {
 		expect(query.hasPostData()).toBeFalsy();
 	});
 
-	test('requesting a boolean false key', () => {
+	it('should produce correct URL for a boolean false key', () => {
 		expect.assertions(2);
 
 		const query = new ViewQuery('test-doc', 'test-view').key(false);
@@ -57,7 +58,7 @@ describe('querying by key', () => {
 		expect(query.hasPostData()).toBeFalsy();
 	});
 
-	test('requesting a null key', () => {
+	it('should produce correct URL for a null key', () => {
 		expect.assertions(2);
 
 		const query = new ViewQuery('test-doc', 'test-view').key(null);
@@ -70,7 +71,7 @@ describe('querying by key', () => {
 });
 
 describe('querying many keys', () => {
-	test('requesting multiple keys', () => {
+	it('should use post data for multiple keys', () => {
 		expect.assertions(2);
 
 		const query = new ViewQuery('test-doc', 'test-view').keys(['test-key']);
@@ -81,7 +82,7 @@ describe('querying many keys', () => {
 		expect(query.postData()).toEqual({ keys: ['test-key'] });
 	});
 
-	test('requesting multiple boolean keys', () => {
+	it('should use post data for multiple boolean keys', () => {
 		expect.assertions(2);
 
 		const query = new ViewQuery('test-doc', 'test-view').keys([true, false]);
@@ -92,7 +93,7 @@ describe('querying many keys', () => {
 		expect(query.postData()).toEqual({ keys: [true, false] });
 	});
 
-	test('requesting multiple null keys', () => {
+	it('should use post data for multiple null keys', () => {
 		expect.assertions(2);
 
 		const query = new ViewQuery('test-doc', 'test-view').keys([null]);
@@ -104,8 +105,8 @@ describe('querying many keys', () => {
 	});
 });
 
-describe('specifiying sort order', () => {
-	test('descending sort order', () => {
+describe('specifying sort order', () => {
+	it('should set descending sort order', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').order(
@@ -117,7 +118,7 @@ describe('specifiying sort order', () => {
 		);
 	});
 
-	test('ascending sort order', () => {
+	it('should set ascending sort order', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').order(
@@ -129,7 +130,7 @@ describe('specifiying sort order', () => {
 		);
 	});
 
-	test('overriding sort order', () => {
+	it('should allow sort order to be overridden', () => {
 		expect.assertions(3);
 
 		const query = new ViewQuery('test-doc', 'test-view').order(
@@ -155,7 +156,7 @@ describe('specifiying sort order', () => {
 });
 
 describe('naive pagination', () => {
-	test('setting skip and limit', () => {
+	it('should set skip and limit in the URL', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').skip(10).limit(5);
@@ -167,7 +168,7 @@ describe('naive pagination', () => {
 });
 
 describe('inlining documents', () => {
-	test('inlining documents', () => {
+	it('should include docs in the URL', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').includeDocs();
@@ -177,7 +178,7 @@ describe('inlining documents', () => {
 		);
 	});
 
-	test('explicitly refusing documents', () => {
+	it('should explicitly exclude docs when passed false', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').includeDocs(false);
@@ -189,7 +190,7 @@ describe('inlining documents', () => {
 });
 
 describe('querying by range', () => {
-	test('loading keys by range', () => {
+	it('should set startkey and endkey in the URL', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').range('123', 'abc');
@@ -200,7 +201,7 @@ describe('querying by range', () => {
 		);
 	});
 
-	test('loading keys by compound range', () => {
+	it('should set compound startkey and endkey in the URL', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').range(
@@ -215,7 +216,7 @@ describe('querying by range', () => {
 		);
 	});
 
-	test('loading keys with inclusive end', () => {
+	it('should set inclusive_end=true when requested', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').range(
@@ -230,7 +231,7 @@ describe('querying by range', () => {
 		);
 	});
 
-	test('loading keys with excluded end', () => {
+	it('should set inclusive_end=false when explicitly excluded', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').range(
@@ -245,7 +246,7 @@ describe('querying by range', () => {
 		);
 	});
 
-	test('loading document subkeys', () => {
+	it('should set startkey_docid and endkey_docid for document subkey ranges', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view')
@@ -261,8 +262,8 @@ describe('querying by range', () => {
 	});
 });
 
-describe('refreshing indicies', () => {
-	test('request stale data at run time', () => {
+describe('refreshing indices', () => {
+	it('should request stale data when update is none', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').update(
@@ -275,7 +276,7 @@ describe('refreshing indicies', () => {
 		);
 	});
 
-	test('lazy update data at run time', () => {
+	it('should request lazy update when update is after', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').update(
@@ -288,7 +289,7 @@ describe('refreshing indicies', () => {
 		);
 	});
 
-	test('explicitly update index before return', () => {
+	it('should update index before returning when update is before', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').update(
@@ -301,7 +302,7 @@ describe('refreshing indicies', () => {
 		);
 	});
 
-	test('implicitly update index before return', () => {
+	it('should update index before returning when no argument is given', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').update();
@@ -314,7 +315,7 @@ describe('refreshing indicies', () => {
 });
 
 describe('reducing and grouping data sets', () => {
-	test('setting reduce flag', () => {
+	it('should set reduce=true in the URL', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').reduce(true);
@@ -324,7 +325,7 @@ describe('reducing and grouping data sets', () => {
 		);
 	});
 
-	test('setting reduce flag to false', () => {
+	it('should set reduce=false in the URL', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').reduce(false);
@@ -334,7 +335,7 @@ describe('reducing and grouping data sets', () => {
 		);
 	});
 
-	test('default reduce to true if no argument', () => {
+	it('should default reduce to true when no argument is given', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').reduce();
@@ -344,7 +345,7 @@ describe('reducing and grouping data sets', () => {
 		);
 	});
 
-	test('setting group flag', () => {
+	it('should set group=true in the URL', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').group(true);
@@ -354,7 +355,7 @@ describe('reducing and grouping data sets', () => {
 		);
 	});
 
-	test('enable grouping with no argument', () => {
+	it('should default group to true when no argument is given', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').group();
@@ -364,7 +365,7 @@ describe('reducing and grouping data sets', () => {
 		);
 	});
 
-	test('recoginise group_level=0 is the same as group=true', () => {
+	it('should treat group_level=0 as group=true', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').group(0);
@@ -374,15 +375,17 @@ describe('reducing and grouping data sets', () => {
 		);
 	});
 
-	test('disable grouping', () => {
+	it('should disable grouping when passed false', () => {
 		expect.assertions(1);
+
 		const query = new ViewQuery('test-doc', 'test-view').group(false);
+
 		expect(query.toString()).toBe(
 			'_design/test-doc/_view/test-view?reduce=false',
 		);
 	});
 
-	test('should not reset reduce when disabling grouping', () => {
+	it('should not reset reduce when disabling grouping', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').reduce().group(false);
@@ -392,7 +395,7 @@ describe('reducing and grouping data sets', () => {
 		);
 	});
 
-	test('setting specific group levels', () => {
+	it('should set group_level in the URL for specific levels', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').group(1);
@@ -402,7 +405,7 @@ describe('reducing and grouping data sets', () => {
 		);
 	});
 
-	test('override group with group level', () => {
+	it('should override group=true with a specific group level', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').group(true).group(1);
@@ -412,7 +415,7 @@ describe('reducing and grouping data sets', () => {
 		);
 	});
 
-	test('override group level with group', () => {
+	it('should override a specific group level with group=true', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').group(1).group(true);
@@ -422,7 +425,7 @@ describe('reducing and grouping data sets', () => {
 		);
 	});
 
-	test('discard float group level', () => {
+	it('should floor a float group level to the nearest integer', () => {
 		expect.assertions(1);
 
 		const query = new ViewQuery('test-doc', 'test-view').group(Math.PI);
@@ -432,7 +435,7 @@ describe('reducing and grouping data sets', () => {
 		);
 	});
 
-	test('throw for invalid group levels', () => {
+	it('should throw for negative group levels', () => {
 		expect.assertions(1);
 
 		expect(() => new ViewQuery('test-doc', 'test-view').group(-1)).toThrow(

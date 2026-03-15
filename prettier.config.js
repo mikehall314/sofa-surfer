@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	useTabs: true,
 	singleQuote: true,
 };
