@@ -36,12 +36,12 @@ export class ViewQuery {
 		this.#name = name;
 	}
 
-	key(key: SerializableValue) {
+	key(key: SerializableValue): this {
 		this.#options.set('key', JSON.stringify(key));
 		return this;
 	}
 
-	keys(keys: SerializableValue[]) {
+	keys(keys: SerializableValue[]): this {
 		if (Array.isArray(keys) === false) {
 			throw new TypeError('keys must be an array of keys');
 		}
@@ -54,7 +54,7 @@ export class ViewQuery {
 		start: SerializableValue,
 		end: SerializableValue,
 		include: RangeInclusion = EXCLUDE_END,
-	) {
+	): this {
 		this.#options.set('startkey', JSON.stringify(start));
 		this.#options.set('endkey', JSON.stringify(end));
 
@@ -69,13 +69,13 @@ export class ViewQuery {
 		return this;
 	}
 
-	idRange(start: string, end: string) {
+	idRange(start: string, end: string): this {
 		this.#options.set('startkey_docid', start);
 		this.#options.set('endkey_docid', end);
 		return this;
 	}
 
-	group(level: GroupLevel = true) {
+	group(level: GroupLevel = true): this {
 		if (level === true || level === 0) {
 			this.#options.set('reduce', 'true');
 			this.#options.set('group', 'true');
@@ -99,12 +99,12 @@ export class ViewQuery {
 		throw new TypeError('Group level must be boolean or positive integer');
 	}
 
-	includeDocs(please = true) {
+	includeDocs(please = true): this {
 		this.#options.set('include_docs', Boolean(please).toString());
 		return this;
 	}
 
-	limit(n: number) {
+	limit(n: number): this {
 		if (n < 0) {
 			throw new TypeError('limit must be a non-negative integer');
 		}
@@ -112,18 +112,18 @@ export class ViewQuery {
 		return this;
 	}
 
-	reduce(please = true) {
+	reduce(please = true): this {
 		this.#options.set('reduce', Boolean(please).toString());
 		return this;
 	}
 
-	order(sort: RowOrder) {
+	order(sort: RowOrder): this {
 		const descending = sort === DESCENDING;
 		this.#options.set('descending', Boolean(descending).toString());
 		return this;
 	}
 
-	update(mode: UpdateMode = UPDATE_BEFORE) {
+	update(mode: UpdateMode = UPDATE_BEFORE): this {
 		if (mode === UPDATE_BEFORE) {
 			this.#options.set('stable', 'false');
 			this.#options.set('update', 'true');
@@ -141,7 +141,7 @@ export class ViewQuery {
 		return this;
 	}
 
-	skip(n: number) {
+	skip(n: number): this {
 		if (n < 0) {
 			throw new TypeError('skip must be a non-negative integer');
 		}
@@ -149,7 +149,7 @@ export class ViewQuery {
 		return this;
 	}
 
-	hasPostData() {
+	hasPostData(): boolean {
 		return this.#postoptions.size > 0;
 	}
 
@@ -159,7 +159,7 @@ export class ViewQuery {
 		return body;
 	}
 
-	toString() {
+	toString(): string {
 		const query = new URLSearchParams(this.#options);
 		query.sort();
 
