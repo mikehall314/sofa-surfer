@@ -5,7 +5,7 @@ import {
 	CouchDBNotFoundError,
 	CouchDBDocumentUpdateConflict,
 } from './errors.js';
-import { CouchDBViewQueryResponse } from './types.js';
+import { Document, ViewQueryResponse, Emitted } from './types.js';
 
 const CONNECTION_STRING = 'http://admin:password@localhost:5984/mydb';
 
@@ -225,12 +225,12 @@ describe('SofaSurfer', () => {
 	describe('query', () => {
 		it('should return view results on success', async () => {
 			// Given a view query and a successful response
-			const results: CouchDBViewQueryResponse<string, string, never> = {
+			const results: ViewQueryResponse = {
 				total_rows: 2,
 				offset: 0,
 				rows: [
-					{ id: 'foo', key: 'foo', value: 'bar' },
-					{ id: 'baz', key: 'baz', value: 'qux' },
+					{ id: 'foo', key: 'foo', value: 'bar', doc: undefined },
+					{ id: 'baz', key: 'baz', value: 'qux', doc: undefined },
 				],
 			};
 			const db = new SofaSurfer(CONNECTION_STRING, makeStub(200, results));
@@ -306,6 +306,41 @@ describe('SofaSurfer', () => {
 			await expect(
 				db.query(new ViewQuery('test-doc', 'test-view')),
 			).rejects.toThrow(CouchDBNotFoundError);
+		});
+
+		it('should narrow key, value, and doc types from a single Emitted', async () => {
+			// Given a view whose key/value/doc shape is known ahead of time
+			type Article = Document & { headline: string };
+			type ArticleView = Emitted<{
+				EmitKey: string;
+				EmitValue: null;
+				Doc: Article;
+			}>;
+
+			const results = {
+				total_rows: 1,
+				offset: 0,
+				rows: [
+					{
+						id: 'foo',
+						key: '2024-01-01T00:00:00.000Z',
+						value: null,
+						doc: { _id: 'foo', _rev: '1-abc', headline: 'Hello' },
+					},
+				],
+			};
+			const db = new SofaSurfer(CONNECTION_STRING, makeStub(200, results));
+
+			// When the query is executed with a single bundled generic
+			const response = await db.query<ArticleView>(
+				new ViewQuery('news', 'by-date-published').includeDocs(),
+			);
+
+			const [row] = response.rows;
+
+			expect(row.key).toBe('2024-01-01T00:00:00.000Z');
+			expect(row.value).toBeNull();
+			expect(row.doc.headline).toBe('Hello');
 		});
 	});
 });

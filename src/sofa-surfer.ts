@@ -1,10 +1,10 @@
 import type { ViewQuery } from './view-query.ts';
 import type {
-	CouchDBDocument,
-	CouchDBDocumentCreated,
+	Document,
+	DocumentCreated,
 	CreateDocumentIntent,
-	CouchDBViewQueryResponse,
-	SerializableValue,
+	ViewQueryResponse,
+	Emitted,
 } from './types.ts';
 import {
 	CouchDBDocumentUpdateConflict,
@@ -44,9 +44,7 @@ export class SofaSurfer {
 		return headers;
 	}
 
-	async get<T extends CouchDBDocument = CouchDBDocument>(
-		id: string,
-	): Promise<T> {
+	async get<T extends Document = Document>(id: string): Promise<T> {
 		const url = new URL(encodeURIComponent(id), this.#baseUrl);
 		const response = await this.#fetch(url, {
 			headers: this.#getHeaders(),
@@ -59,7 +57,7 @@ export class SofaSurfer {
 		return response.json();
 	}
 
-	async insert(doc: CreateDocumentIntent): Promise<CouchDBDocumentCreated> {
+	async insert(doc: CreateDocumentIntent): Promise<DocumentCreated> {
 		// This is for inserting only. If the user wants to update,
 		// they should use `replace` with `_id` and `_rev`.
 		if (Object.hasOwn(doc, '_rev')) {
@@ -87,7 +85,7 @@ export class SofaSurfer {
 		id: string,
 		rev: string,
 		doc: CreateDocumentIntent,
-	): Promise<CouchDBDocumentCreated> {
+	): Promise<DocumentCreated> {
 		const url = new URL(encodeURIComponent(id), this.#baseUrl);
 		url.search = new URLSearchParams({ rev }).toString();
 
@@ -108,7 +106,7 @@ export class SofaSurfer {
 		return response.json();
 	}
 
-	async remove(id: string, rev: string): Promise<CouchDBDocumentCreated> {
+	async remove(id: string, rev: string): Promise<DocumentCreated> {
 		const url = new URL(encodeURIComponent(id), this.#baseUrl);
 		url.search = new URLSearchParams({ rev }).toString();
 
@@ -128,16 +126,12 @@ export class SofaSurfer {
 		return response.json();
 	}
 
-	async query<
-		V extends SerializableValue = SerializableValue,
-		K extends SerializableValue = SerializableValue,
-		D extends CouchDBDocument = CouchDBDocument,
-	>(query: ViewQuery): Promise<CouchDBViewQueryResponse<V, K, D>> {
-		const url = new URL(query.toString(), this.#baseUrl);
+	async query<S = Emitted>(q: ViewQuery): Promise<ViewQueryResponse<S>> {
+		const url = new URL(q.toString(), this.#baseUrl);
 
 		const response = await this.#fetch(url, {
-			method: query.hasPostData() ? 'POST' : 'GET',
-			body: query.hasPostData() ? JSON.stringify(query.postData()) : undefined,
+			method: q.hasPostData() ? 'POST' : 'GET',
+			body: q.hasPostData() ? JSON.stringify(q.postData()) : undefined,
 			headers: this.#getHeaders(),
 		});
 
