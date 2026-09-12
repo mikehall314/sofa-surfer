@@ -165,6 +165,36 @@ describe('naive pagination', () => {
 			'_design/test-doc/_view/test-view?limit=5&reduce=false&skip=10',
 		);
 	});
+
+	it('should throw for a negative limit', () => {
+		expect.assertions(1);
+
+		const query = new ViewQuery('test-doc', 'test-view');
+
+		expect(() => query.limit(-1)).toThrow(TypeError);
+	});
+
+	it('should omit limit from the URL when given Infinity', () => {
+		expect.assertions(1);
+
+		const query = new ViewQuery('test-doc', 'test-view').limit(Infinity);
+
+		expect(query.toString()).toBe(
+			'_design/test-doc/_view/test-view?reduce=false',
+		);
+	});
+
+	it('should allow a previously set limit to be cleared with Infinity', () => {
+		expect.assertions(1);
+
+		const query = new ViewQuery('test-doc', 'test-view')
+			.limit(5)
+			.limit(Infinity);
+
+		expect(query.toString()).toBe(
+			'_design/test-doc/_view/test-view?reduce=false',
+		);
+	});
 });
 
 describe('inlining documents', () => {

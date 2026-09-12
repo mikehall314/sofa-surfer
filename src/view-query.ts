@@ -108,6 +108,12 @@ export class ViewQuery {
 		if (n < 0) {
 			throw new TypeError('limit must be a non-negative integer');
 		}
+
+		if (n === Infinity) {
+			this.#options.delete('limit');
+			return this;
+		}
+
 		this.#options.set('limit', Number(n).toFixed(0));
 		return this;
 	}
