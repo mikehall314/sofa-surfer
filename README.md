@@ -90,6 +90,22 @@ Runs a view query. See `ViewQuery` below.
 const { rows } = await db.query(query);
 ```
 
+In TypeScript, pass an `Emitted<{ ... }>` shape to type `key`, `value`, and (if you called `.includeDocs()`) `doc` on each row. You only need to declare the fields you actually care about:
+
+```ts
+import { Emitted } from 'sofa-surfer';
+
+type Article = { _id: string; _rev: string; headline: string };
+type ArticleRow = Emitted<{ EmitKey: string; Doc: Article }>;
+
+const { rows } = await db.query<ArticleRow>(
+	new ViewQuery('news', 'by-date').includeDocs(),
+);
+
+rows[0].key; // string
+rows[0].doc.headline; // string
+```
+
 ---
 
 ### `ViewQuery`
