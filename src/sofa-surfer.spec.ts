@@ -1,19 +1,20 @@
 import { vi, describe, it, expect } from 'vitest';
 import { SofaSurfer } from './sofa-surfer.ts';
+import type { FetchLike } from './sofa-surfer.ts';
 import { ViewQuery } from './view-query.ts';
 import {
 	CouchDBNotFoundError,
 	CouchDBDocumentUpdateConflict,
 } from './errors.js';
-import { Document, ViewQueryResponse, Emitted } from './types.js';
+import type { Document, ViewQueryResponse, Emitted } from './types.js';
 
 const CONNECTION_STRING = 'http://admin:password@localhost:5984/mydb';
 
 // Returns a minimal fetch stub that resolves with a given status and body
 function makeStub(status: number, body: unknown) {
-	return vi.fn().mockResolvedValue({
+	return vi.fn<FetchLike>().mockResolvedValue({
 		status,
-		json: () => Promise.resolve(body),
+		json: async () => Promise.resolve(body),
 	});
 }
 
@@ -28,7 +29,7 @@ describe('SofaSurfer', () => {
 			await db.get('some-id');
 
 			// Then the URL passed to fetch should not contain credentials
-			const url = fetchStub.mock.calls[0][0] as URL;
+			const [url] = fetchStub.mock.lastCall!;
 			expect(url.username).toBe('');
 			expect(url.password).toBe('');
 		});
@@ -42,8 +43,9 @@ describe('SofaSurfer', () => {
 			await db.get('some-id');
 
 			// Then the Authorization header should be set as Basic auth
-			const headers = fetchStub.mock.calls[0][1].headers as Headers;
-			expect(headers.get('authorization')).toMatch(/^Basic /);
+			const [, init] = fetchStub.mock.lastCall!;
+			const headers = new Headers(init.headers);
+			expect(headers.get('authorization')?.startsWith('Basic ')).toBe(true);
 		});
 	});
 
@@ -67,7 +69,7 @@ describe('SofaSurfer', () => {
 			await db.get('foo/bar');
 
 			// Then the id should be percent-encoded in the URL
-			const url = fetchStub.mock.calls[0][0] as URL;
+			const [url] = fetchStub.mock.lastCall!;
 			expect(url.pathname).toContain('foo%2Fbar');
 		});
 
@@ -98,6 +100,7 @@ describe('SofaSurfer', () => {
 
 			// When the document is inserted
 			// Then a CouchDBDocumentUpdateConflict should be thrown before the request is made
+			// eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-type-assertion -- bypass the compile-time guard
 			await expect(db.insert({ _rev: '1-abc' } as never)).rejects.toThrow(
 				CouchDBDocumentUpdateConflict,
 			);
@@ -148,7 +151,7 @@ describe('SofaSurfer', () => {
 			await db.replace('foo', '1-abc', { name: 'test' });
 
 			// Then the rev should be passed as a query parameter
-			const url = fetchStub.mock.calls[0][0] as URL;
+			const [url] = fetchStub.mock.lastCall!;
 			expect(url.searchParams.get('rev')).toBe('1-abc');
 		});
 
@@ -195,7 +198,7 @@ describe('SofaSurfer', () => {
 			await db.remove('foo', '1-abc');
 
 			// Then the rev should be passed as a query parameter
-			const url = fetchStub.mock.calls[0][0] as URL;
+			const [url] = fetchStub.mock.lastCall!;
 			expect(url.searchParams.get('rev')).toBe('1-abc');
 		});
 
@@ -293,7 +296,7 @@ describe('SofaSurfer', () => {
 			await db.query(new ViewQuery('test-doc', 'test-view'));
 
 			// Then the URL should point to the correct view
-			const url = fetchStub.mock.calls[0][0] as URL;
+			const [url] = fetchStub.mock.lastCall!;
 			expect(url.pathname).toContain('_design/test-doc/_view/test-view');
 		});
 
@@ -336,6 +339,8 @@ describe('SofaSurfer', () => {
 				new ViewQuery('news', 'by-date-published').includeDocs(),
 			);
 
+			// combining into `const { rows: [row] } = response` reads worse, not better
+			// eslint-disable-next-line @typescript-eslint/prefer-destructuring -- see above
 			const [row] = response.rows;
 
 			expect(row.key).toBe('2024-01-01T00:00:00.000Z');

@@ -25,8 +25,8 @@ export class ViewQuery {
 	public static UPDATE_AFTER = UPDATE_AFTER;
 	public static UPDATE_NONE = UPDATE_NONE;
 
-	#options = new URLSearchParams({ reduce: 'false' });
-	#postoptions = new Map<'keys', SerializableValue>();
+	readonly #options = new URLSearchParams({ reduce: 'false' });
+	readonly #postoptions = new Map<'keys', SerializableValue>();
 
 	readonly #ddoc: string;
 	readonly #name: string;
@@ -136,6 +136,9 @@ export class ViewQuery {
 		} else if (mode === UPDATE_AFTER) {
 			this.#options.set('stable', 'true');
 			this.#options.set('update', 'lazy');
+			// no-unnecessary-condition doesn't consider that this code may run
+			// in a non-TS environment too and flags this condition as useless
+			// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- see above
 		} else if (mode === UPDATE_NONE) {
 			this.#options.set('stable', 'true');
 			this.#options.set('update', 'false');
@@ -160,8 +163,12 @@ export class ViewQuery {
 	}
 
 	postData(): Record<string, SerializableValue> {
-		const body = Object.create(null);
-		this.#postoptions.forEach((value, key) => (body[key] = value));
+		// Object.create(null) is the right tool for a null-prototype object
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion -- see above
+		const body = Object.create(null) as Record<string, SerializableValue>;
+		this.#postoptions.forEach((value, key) => {
+			body[key] = value;
+		});
 		return body;
 	}
 

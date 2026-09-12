@@ -11,12 +11,17 @@ import {
 	CouchDBNotFoundError,
 } from './errors.ts';
 
-export class SofaSurfer {
-	#baseUrl: URL;
-	#authorization?: string;
-	#fetch: typeof fetch;
+export type FetchLike = <T>(
+	url: URL,
+	init: RequestInit,
+) => Promise<{ status: number; json: () => Promise<T> }>;
 
-	constructor(conn: string, fetchFn = fetch) {
+export class SofaSurfer {
+	readonly #baseUrl: URL;
+	readonly #authorization?: string;
+	readonly #fetch: FetchLike;
+
+	constructor(conn: string, fetchFn: FetchLike = fetch) {
 		const url = new URL(conn);
 		if (url.username) {
 			const bytes = new TextEncoder().encode(`${url.username}:${url.password}`);
@@ -46,7 +51,7 @@ export class SofaSurfer {
 
 	async get<T extends Document = Document>(id: string): Promise<T> {
 		const url = new URL(encodeURIComponent(id), this.#baseUrl);
-		const response = await this.#fetch(url, {
+		const response = await this.#fetch<T>(url, {
 			headers: this.#getHeaders(),
 		});
 
@@ -64,7 +69,7 @@ export class SofaSurfer {
 			throw new CouchDBDocumentUpdateConflict('Document must not include _rev');
 		}
 
-		const response = await this.#fetch(this.#baseUrl, {
+		const response = await this.#fetch<DocumentCreated>(this.#baseUrl, {
 			method: 'POST',
 			headers: this.#getHeaders(),
 			body: JSON.stringify(doc),
@@ -89,7 +94,7 @@ export class SofaSurfer {
 		const url = new URL(encodeURIComponent(id), this.#baseUrl);
 		url.search = new URLSearchParams({ rev }).toString();
 
-		const response = await this.#fetch(url, {
+		const response = await this.#fetch<DocumentCreated>(url, {
 			method: 'PUT',
 			headers: this.#getHeaders(),
 			body: JSON.stringify(doc),
@@ -110,7 +115,7 @@ export class SofaSurfer {
 		const url = new URL(encodeURIComponent(id), this.#baseUrl);
 		url.search = new URLSearchParams({ rev }).toString();
 
-		const response = await this.#fetch(url, {
+		const response = await this.#fetch<DocumentCreated>(url, {
 			method: 'DELETE',
 			headers: this.#getHeaders(),
 		});
@@ -129,7 +134,7 @@ export class SofaSurfer {
 	async query<S = Emitted>(q: ViewQuery): Promise<ViewQueryResponse<S>> {
 		const url = new URL(q.toString(), this.#baseUrl);
 
-		const response = await this.#fetch(url, {
+		const response = await this.#fetch<ViewQueryResponse<S>>(url, {
 			method: q.hasPostData() ? 'POST' : 'GET',
 			body: q.hasPostData() ? JSON.stringify(q.postData()) : undefined,
 			headers: this.#getHeaders(),
