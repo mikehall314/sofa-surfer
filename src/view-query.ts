@@ -11,9 +11,7 @@ const UPDATE_NONE = 'update_none' as const;
 type GroupLevel = number | boolean;
 type RowOrder = typeof ASCENDING | typeof DESCENDING;
 type UpdateMode =
-	| typeof UPDATE_BEFORE
-	| typeof UPDATE_AFTER
-	| typeof UPDATE_NONE;
+	typeof UPDATE_BEFORE | typeof UPDATE_AFTER | typeof UPDATE_NONE;
 type RangeInclusion = typeof INCLUDE_END | typeof EXCLUDE_END;
 
 export class ViewQuery {
