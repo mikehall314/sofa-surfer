@@ -16,6 +16,15 @@ export type FetchLike = <T>(
 	init: RequestInit,
 ) => Promise<{ status: number; json: () => Promise<T> }>;
 
+// A design doc id has a real "/" as part of the path
+function encodeDocumentId(id: string): string {
+	if (id.startsWith('_design/')) {
+		return `_design/${encodeURIComponent(id.slice(8))}`;
+	}
+
+	return encodeURIComponent(id);
+}
+
 export class SofaSurfer {
 	readonly #baseUrl: URL;
 	readonly #authorization?: string;
@@ -49,7 +58,7 @@ export class SofaSurfer {
 	}
 
 	async get<T extends Document = Document>(id: string): Promise<T> {
-		const url = new URL(encodeURIComponent(id), this.#baseUrl);
+		const url = new URL(encodeDocumentId(id), this.#baseUrl);
 		const response = await this.#fetch<T>(url, {
 			headers: this.#getHeaders(),
 		});
@@ -90,7 +99,7 @@ export class SofaSurfer {
 		rev: string,
 		doc: CreateDocumentIntent,
 	): Promise<DocumentCreated> {
-		const url = new URL(encodeURIComponent(id), this.#baseUrl);
+		const url = new URL(encodeDocumentId(id), this.#baseUrl);
 		url.search = new URLSearchParams({ rev }).toString();
 
 		const response = await this.#fetch<DocumentCreated>(url, {
@@ -111,7 +120,7 @@ export class SofaSurfer {
 	}
 
 	async remove(id: string, rev: string): Promise<DocumentCreated> {
-		const url = new URL(encodeURIComponent(id), this.#baseUrl);
+		const url = new URL(encodeDocumentId(id), this.#baseUrl);
 		url.search = new URLSearchParams({ rev }).toString();
 
 		const response = await this.#fetch<DocumentCreated>(url, {
