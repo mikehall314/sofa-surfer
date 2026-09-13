@@ -1,6 +1,6 @@
 {
   "name": "@mikehall314/sofa-surfer",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "license": "MIT",
   "exports": "./src/index.ts"
 }
