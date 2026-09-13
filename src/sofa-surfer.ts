@@ -24,8 +24,7 @@ export class SofaSurfer {
 	constructor(conn: string, fetchFn: FetchLike = fetch) {
 		const url = new URL(conn);
 		if (url.username) {
-			const bytes = new TextEncoder().encode(`${url.username}:${url.password}`);
-			this.#authorization = bytes.toBase64();
+			this.#authorization = btoa(`${url.username}:${url.password}`);
 		}
 
 		url.username = '';
